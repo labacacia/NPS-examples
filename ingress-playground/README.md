@@ -1,6 +1,6 @@
 English | [中文版](./README.cn.md)
 
-# Bridge Playground Demo
+# Ingress Playground Demo
 
 The same logical NWP action — `greetings.hello(name)` — reached
 simultaneously through **three different compatibility bridges**: MCP, A2A,
@@ -40,11 +40,11 @@ existing Agent ecosystem speaks something else: Anthropic MCP, Google A2A,
 or plain gRPC. A bridge is a pure **shape-translator** that sits in front
 of an unchanged NWP node and exposes it as:
 
-| Bridge | What it exposes | How the payload is carried |
-|--------|-----------------|----------------------------|
-| `LabAcacia.McpBridge` | MCP 2024-11-05 server: `tools/list`, `tools/call` | CapsFrame serialized into `content[{type:"text", text:"..."}]` |
-| `LabAcacia.A2aBridge` | Google A2A v0.2 server: `tasks/send`, `tasks/get` | CapsFrame inlined as `artifacts[].parts[{type:"data", data:…}]` |
-| `LabAcacia.GrpcBridge` | gRPC service `NwpBridge.Invoke` (h2c for this demo) | CapsFrame serialized to JSON → passed as `bytes body_json` |
+| Ingress | What it exposes | How the payload is carried |
+|---------|-----------------|----------------------------|
+| `LabAcacia.McpIngress` | MCP 2024-11-05 server: `tools/list`, `tools/call` | CapsFrame serialized into `content[{type:"text", text:"..."}]` |
+| `LabAcacia.A2aIngress` | Google A2A v0.2 server: `tasks/send`, `tasks/get` | CapsFrame inlined as `artifacts[].parts[{type:"data", data:…}]` |
+| `LabAcacia.GrpcIngress` | gRPC service `NwpIngress.Invoke` (h2c for this demo) | CapsFrame serialized to JSON → passed as `bytes body_json` |
 
 Because the bridges only rewrite the envelope, the same `ActionFrame`
 reaches the upstream node every time, the same `greetings.hello` provider
@@ -138,7 +138,7 @@ POST http://127.0.0.1:17483/a2a     → HTTP 200 OK
 A2A wraps the CapsFrame as a typed `data` part inside `artifacts[]`. Same
 `anchor_ref`, same payload — only the Task/Artifact envelope is A2A's.
 
-**Scene C — through gRPC.** `NwpBridge.Invoke` over h2c:
+**Scene C — through gRPC.** `NwpIngress.Invoke` over h2c:
 
 ```
 → gRPC OK   upstream HTTP 200
@@ -165,7 +165,7 @@ response once and re-use it regardless of which bridge delivered it.
 ## Run it
 
 ```bash
-dotnet run --project demos/bridge-playground
+dotnet run --project demos/ingress-playground
 ```
 
 Requires .NET 10 SDK. Four Kestrel hosts (upstream + 3 bridges) and the
@@ -176,25 +176,25 @@ client all live in one process; nothing binds beyond 127.0.0.1.
 ## Layout
 
 ```
-demos/bridge-playground/
-├── Program.cs                      # 4 hosts + 3 client scenes (A/B/C)
-├── HostBuilders.cs                 # Kestrel factories: upstream + 3 bridges
-├── GreetingsProvider.cs            # IActionNodeProvider impl for greetings.hello
-├── Protos/nwp_bridge_client.proto  # Local copy of the bridge proto (Client-only)
-└── NPS.Demo.BridgePlayground.csproj
+demos/ingress-playground/
+├── Program.cs                        # 4 hosts + 3 client scenes (A/B/C)
+├── HostBuilders.cs                   # Kestrel factories: upstream + 3 ingress adapters
+├── GreetingsProvider.cs              # IActionNodeProvider impl for greetings.hello
+├── Protos/nwp_bridge_client.proto    # Local copy of the ingress proto (Client-only)
+└── NPS.Demo.IngressPlayground.csproj
 ```
 
 ---
 
 ## Why a local `.proto` copy
 
-`LabAcacia.GrpcBridge` ships its proto with `GrpcServices="Server"`, which
+`LabAcacia.GrpcIngress` ships its proto with `GrpcServices="Server"`, which
 generates only the server base class. The demo needs a **client stub** and
-also pulls in the bridge library for the server side; generating both
+also pulls in the ingress library for the server side; generating both
 stubs from the same proto would collide on the
-`LabAcacia.GrpcBridge.Generated.*` message types. The fix is a second
+`LabAcacia.GrpcIngress.Generated.*` message types. The fix is a second
 copy of the proto with a distinct
-`csharp_namespace = "NPS.Demo.BridgePlayground.Grpc"` and
+`csharp_namespace = "NPS.Demo.IngressPlayground.Grpc"` and
 `GrpcServices="Client"`. Wire format is identical; only the .NET
 namespaces differ, so the two sides interoperate transparently.
 
@@ -225,3 +225,6 @@ namespaces differ, so the two sides interoperate transparently.
 - **Synchronous only.** `greetings.hello` is `Async=false`; the 202 path
   (A2A `submitted → working → completed` polling, gRPC async) is not
   exercised here.
+- **Run output is pre-rename.** The captured results above were recorded before the
+  `bridge-playground` → `ingress-playground` rename; `anchor_ref` URLs in captured
+  output still show `bridge-playground`. New runs will show `ingress-playground`.

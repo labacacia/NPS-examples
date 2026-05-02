@@ -122,12 +122,21 @@ to the pass list.
 ## Run it
 
 ```bash
+# Wire-format interop (stdlib-only clients, no SDK needed)
 bash demos/cross-sdk-interop/run.sh
+
+# SDK behaviour parity: AssuranceLevel.fromWire("") == ANONYMOUS across all SDKs
+bash demos/cross-sdk-interop/assurance-level-parity.sh
 ```
 
-Requires .NET 10 SDK for the server + dotnet client. Optional (detected
+`run.sh` requires .NET 10 SDK for the server + dotnet client. Optional (detected
 per-client): `python3` ≥ 3.9, `node` ≥ 18, `go` ≥ 1.22. No
 `pip install` / `npm install` / `go get` is required for any client.
+
+`assurance-level-parity.sh` imports each installed SDK directly and asserts
+`AssuranceLevel.fromWire("") === ANONYMOUS`. The empty-string case was made
+consistent with `fromWire(null)` across Python / TypeScript / Java in alpha.5
+(NPS-RFC-0003 §5.1.1). Missing runtimes are skipped gracefully.
 
 ---
 
@@ -149,6 +158,7 @@ per-client): `python3` ≥ 3.9, `node` ≥ 18, `go` ≥ 1.22. No
 ```
 demos/cross-sdk-interop/
 ├── run.sh                                 # start server, fan out, diff
+├── assurance-level-parity.sh             # SDK fromWire("") == ANONYMOUS parity
 ├── server/
 │   ├── NPS.Demo.InteropServer.csproj
 │   └── Program.cs                         # 3-row products Memory Node

@@ -5,7 +5,7 @@ using System.Text.Json;
 using NPS.NWP.ActionNode;
 using NPS.NWP.Frames;
 
-namespace NPS.Demo.BridgePlayground;
+namespace NPS.Demo.IngressPlayground;
 
 /// <summary>
 /// Sole provider the playground exposes. Implements one action:
@@ -39,7 +39,7 @@ public sealed class GreetingsProvider : IActionNodeProvider
         return Task.FromResult(new ActionExecutionResult
         {
             Result    = JsonDocument.Parse(json).RootElement,
-            AnchorRef = "nps://demo/bridge-playground/anchors/greeting/v1",
+            AnchorRef = "nps://demo/ingress-playground/anchors/greeting/v1",
         });
     }
 }

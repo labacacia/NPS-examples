@@ -1,18 +1,18 @@
 // Copyright 2026 INNO LOTUS PTY LTD
 // SPDX-License-Identifier: Apache-2.0
 //
-// Local copy of compat/grpc-bridge/src/LabAcacia.GrpcBridge/Protos/nwp_bridge.proto
+// Local copy of compat/grpc-ingress/src/LabAcacia.GrpcIngress/Protos/nwp_ingress.proto
 // with a distinct csharp_namespace so the demo can generate CLIENT stubs here
-// while still referencing the bridge library (which generates SERVER stubs).
+// while still referencing the ingress library (which generates SERVER stubs).
 // The proto wire format is identical — only the .NET namespaces differ.
 
 syntax = "proto3";
 
-package labacacia.grpc_bridge.v1;
+package labacacia.grpc_ingress.v1;
 
-option csharp_namespace = "NPS.Demo.BridgePlayground.Grpc";
+option csharp_namespace = "NPS.Demo.IngressPlayground.Grpc";
 
-service NwpBridge {
+service NwpIngress {
   rpc GetManifest(ManifestRequest) returns (ManifestResponse);
   rpc Invoke(InvokeRequest) returns (InvokeResponse);
   rpc Query(QueryRequest) returns (QueryResponse);

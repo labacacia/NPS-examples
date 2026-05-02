@@ -6,17 +6,17 @@
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
-    <RootNamespace>NPS.Demo.BridgePlayground</RootNamespace>
-    <AssemblyName>NPS.Demo.BridgePlayground</AssemblyName>
+    <RootNamespace>NPS.Demo.IngressPlayground</RootNamespace>
+    <AssemblyName>NPS.Demo.IngressPlayground</AssemblyName>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\impl\dotnet\src\NPS.Core\NPS.Core.csproj" />
     <ProjectReference Include="..\..\impl\dotnet\src\NPS.NWP\NPS.NWP.csproj" />
-    <ProjectReference Include="..\..\compat\mcp-bridge\src\LabAcacia.McpBridge\LabAcacia.McpBridge.csproj" />
-    <ProjectReference Include="..\..\compat\a2a-bridge\src\LabAcacia.A2aBridge\LabAcacia.A2aBridge.csproj" />
-    <ProjectReference Include="..\..\compat\grpc-bridge\src\LabAcacia.GrpcBridge\LabAcacia.GrpcBridge.csproj" />
+    <ProjectReference Include="..\..\compat\mcp-ingress\src\LabAcacia.McpIngress\LabAcacia.McpIngress.csproj" />
+    <ProjectReference Include="..\..\compat\a2a-ingress\src\LabAcacia.A2aIngress\LabAcacia.A2aIngress.csproj" />
+    <ProjectReference Include="..\..\compat\grpc-ingress\src\LabAcacia.GrpcIngress\LabAcacia.GrpcIngress.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -28,9 +28,9 @@
   </ItemGroup>
 
   <!--
-    The gRPC bridge library exposes only the server stubs (GrpcServices="Server").
+    The gRPC ingress library exposes only the server stubs (GrpcServices="Server").
     The demo needs a client stub, so we include a local copy of the proto and generate
-    the client into a separate CLR namespace (NPS.Demo.BridgePlayground.Grpc) to avoid
+    the client into a separate CLR namespace (NPS.Demo.IngressPlayground.Grpc) to avoid
     type-name collisions with the server stubs pulled in via the ProjectReference.
   -->
   <ItemGroup>

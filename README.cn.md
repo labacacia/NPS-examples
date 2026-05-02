@@ -11,8 +11,8 @@
 > clone 下来。要**运行**演示，请 clone
 > [`labacacia/nps`](https://github.com/labacacia/nps) 并在那边发起调用——
 > 各个 `.csproj` 文件通过 `ProjectReference` 引用 NPS 包
-> （`NPS.Core`、`NPS.NWP`、`LabAcacia.McpBridge`、`LabAcacia.A2aBridge`、
-> `LabAcacia.GrpcBridge`），在这些包正式发布到 NuGet 之前，这些路径只在
+> （`NPS.Core`、`NPS.NWP`、`LabAcacia.McpIngress`、`LabAcacia.A2aIngress`、
+> `LabAcacia.GrpcIngress`），在这些包正式发布到 NuGet 之前，这些路径只在
 > 主仓库里才能解析。
 
 ---
@@ -22,7 +22,7 @@
 | # | 演示 | 一句话说明 | 演练的协议点 |
 |---|------|------------|--------------|
 | 1 | [**nwp-graph-walk**](./nwp-graph-walk/README.cn.md) | Complex Node 沿着带标签的 ref 遍历到其他 NWP 节点，带深度上限 + 环路检测 | NPS-2 (NWP) §11 `graph.refs`、`X-NWP-Depth`、`X-NWP-Trace` |
-| 2 | [**bridge-playground**](./bridge-playground/README.cn.md) | 同一个 NWP Action Node 通过 MCP、A2A、gRPC 三个桥同时对外暴露 | `LabAcacia.McpBridge` + `LabAcacia.A2aBridge` + `LabAcacia.GrpcBridge` |
+| 2 | [**ingress-playground**](./ingress-playground/README.cn.md) | 同一个 NWP Action Node 通过 MCP、A2A、gRPC 三个桥同时对外暴露 | `LabAcacia.McpIngress` + `LabAcacia.A2aIngress` + `LabAcacia.GrpcIngress` |
 | 3 | [**cross-sdk-interop**](./cross-sdk-interop/README.cn.md) | 同一个 .NET NWP Memory Node 在 dotnet / python / nodejs / go 四个客户端面前返回逐字节一致的响应（仅用标准库 HTTP + JSON） | NWP `/query` 的 JSON-Overlay 形态、CapsFrame 跨客户端字节级一致 |
 
 每个演示的 README 都包含四部分：
@@ -44,7 +44,7 @@ cd nps
 dotnet run --project demos/nwp-graph-walk
 
 # 演示 2 —— bridge playground（上游 + 3 个桥 + 客户端全在一个进程）
-dotnet run --project demos/bridge-playground
+dotnet run --project demos/ingress-playground
 
 # 演示 3 —— 跨 SDK 互操作（启动服务端、分发给 PATH 上的每个运行时）
 bash demos/cross-sdk-interop/run.sh

@@ -1,17 +1,17 @@
 // Copyright 2026 INNO LOTUS PTY LTD
 // SPDX-License-Identifier: Apache-2.0
 
-// Bridge playground — one NWP Action Node exposed simultaneously as
+// Ingress playground — one NWP Action Node exposed simultaneously as
 // MCP, A2A, and gRPC. A single .NET client calls the same logical action
-// through all three bridges and prints the responses side-by-side.
+// through all three ingress adapters and prints the responses side-by-side.
 
 using System.Net.Http.Json;
 using System.Text.Json;
 using Google.Protobuf;
 using Grpc.Net.Client;
 using Microsoft.AspNetCore.Builder;
-using NPS.Demo.BridgePlayground;
-using NPS.Demo.BridgePlayground.Grpc; // generated gRPC client (GrpcServices="Client")
+using NPS.Demo.IngressPlayground;
+using NPS.Demo.IngressPlayground.Grpc; // generated gRPC client (GrpcServices="Client")
 
 // Allow plain-HTTP h2c for our loopback gRPC bridge. No production bridge
 // should ever run without TLS — this knob is demo-only.
@@ -24,7 +24,7 @@ const string McpUrl      = "http://127.0.0.1:17482"; // MCP bridge
 const string A2aUrl      = "http://127.0.0.1:17483"; // A2A bridge
 const string GrpcUrl     = "http://127.0.0.1:17484"; // gRPC bridge
 
-Banner("Bridge playground — MCP + A2A + gRPC fronting one NWP Action Node");
+Banner("Ingress playground — MCP + A2A + gRPC fronting one NWP Action Node");
 
 var hosts = new List<WebApplication>
 {
@@ -40,7 +40,7 @@ await Task.Delay(250); // short settle — demo only
 Console.WriteLine($"  upstream ▶ {UpstreamUrl}/invoke       (NWP Action Node)");
 Console.WriteLine($"  MCP      ▶ {McpUrl}/mcp               (JSON-RPC tools/call)");
 Console.WriteLine($"  A2A      ▶ {A2aUrl}/a2a               (JSON-RPC tasks/send)");
-Console.WriteLine($"  gRPC     ▶ {GrpcUrl} /labacacia.grpc_bridge.v1.NwpBridge/Invoke");
+Console.WriteLine($"  gRPC     ▶ {GrpcUrl} /labacacia.grpc_ingress.v1.NwpIngress/Invoke");
 
 try
 {
@@ -135,7 +135,7 @@ static async Task ViaGrpc(string title, string bridgeBaseUrl, string upstreamNam
     Console.WriteLine("═══ " + title);
 
     using var channel = GrpcChannel.ForAddress(bridgeBaseUrl);
-    var client = new NwpBridge.NwpBridgeClient(channel);
+    var client = new NwpIngress.NwpIngressClient(channel);
 
     var req = new InvokeRequest
     {

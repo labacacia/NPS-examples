@@ -12,7 +12,7 @@ out — run it.
 > without cloning the whole suite. To *run* a demo, clone
 > [`labacacia/nps`](https://github.com/labacacia/nps) and invoke it from
 > there — the `.csproj` files reference NPS packages (`NPS.Core`, `NPS.NWP`,
-> `LabAcacia.McpBridge`, `LabAcacia.A2aBridge`, `LabAcacia.GrpcBridge`) via
+> `LabAcacia.McpIngress`, `LabAcacia.A2aIngress`, `LabAcacia.GrpcIngress`) via
 > `ProjectReference` paths that only resolve inside the monorepo until
 > those packages ship on NuGet.
 
@@ -23,7 +23,7 @@ out — run it.
 | # | Demo | One-line description | What protocol piece it exercises |
 |---|------|----------------------|----------------------------------|
 | 1 | [**nwp-graph-walk**](./nwp-graph-walk/README.md) | Complex Node traversing typed refs to other NWP nodes, with depth cap + cycle detection | NPS-2 (NWP) §11 `graph.refs`, `X-NWP-Depth`, `X-NWP-Trace` |
-| 2 | [**bridge-playground**](./bridge-playground/README.md) | One NWP Action Node exposed simultaneously through MCP, A2A, and gRPC bridges | `LabAcacia.McpBridge` + `LabAcacia.A2aBridge` + `LabAcacia.GrpcBridge` |
+| 2 | [**ingress-playground**](./ingress-playground/README.md) | One NWP Action Node exposed simultaneously through MCP, A2A, and gRPC bridges | `LabAcacia.McpIngress` + `LabAcacia.A2aIngress` + `LabAcacia.GrpcIngress` |
 | 3 | [**cross-sdk-interop**](./cross-sdk-interop/README.md) | Same .NET NWP Memory Node reached from dotnet / python / nodejs / go using only stdlib HTTP + JSON | NWP JSON-Overlay at `/query`, CapsFrame byte-equality across clients |
 
 Each demo's README has four sections:
@@ -45,7 +45,7 @@ cd nps
 dotnet run --project demos/nwp-graph-walk
 
 # Demo 2 — bridge playground (upstream + 3 bridges + client in one process)
-dotnet run --project demos/bridge-playground
+dotnet run --project demos/ingress-playground
 
 # Demo 3 — cross-SDK interop (starts server, fans out to each runtime on PATH)
 bash demos/cross-sdk-interop/run.sh

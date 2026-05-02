@@ -1,9 +1,9 @@
 // Copyright 2026 INNO LOTUS PTY LTD
 // SPDX-License-Identifier: Apache-2.0
 
-using LabAcacia.A2aBridge;
-using LabAcacia.GrpcBridge;
-using LabAcacia.McpBridge;
+using LabAcacia.A2aIngress;
+using LabAcacia.GrpcIngress;
+using LabAcacia.McpIngress;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 using NPS.NWP.ActionNode;
 using NPS.NWP.Extensions;
 
-namespace NPS.Demo.BridgePlayground;
+namespace NPS.Demo.IngressPlayground;
 
 /// <summary>
 /// Kestrel host factories for the 4-process playground:
@@ -71,13 +71,13 @@ public static class HostBuilders
         builder.WebHost.UseUrls(bridgeUrl);
         builder.Logging.SetMinimumLevel(LogLevel.Warning);
 
-        builder.Services.AddMcpBridge(o =>
+        builder.Services.AddMcpIngress(o =>
         {
-            o.ServerName    = "NPS.Demo.BridgePlayground.Mcp";
+            o.ServerName    = "NPS.Demo.IngressPlayground.Mcp";
             o.ServerVersion = "0.1.0";
             o.Upstreams =
             [
-                new LabAcacia.McpBridge.NwpUpstream
+                new LabAcacia.McpIngress.NwpUpstream
                 {
                     Name    = upstreamName,
                     BaseUrl = new Uri(upstreamUrl),
@@ -86,7 +86,7 @@ public static class HostBuilders
         });
 
         var app = builder.Build();
-        app.MapMcpBridge("/mcp");
+        app.MapMcpIngress("/mcp");
         return app;
     }
 
@@ -97,16 +97,16 @@ public static class HostBuilders
         builder.WebHost.UseUrls(bridgeUrl);
         builder.Logging.SetMinimumLevel(LogLevel.Warning);
 
-        builder.Services.AddA2aBridge(o =>
+        builder.Services.AddA2aIngress(o =>
         {
-            o.AgentName        = "bridge-playground-greetings";
+            o.AgentName        = "ingress-playground-greetings";
             o.AgentDescription = "NWP upstream exposed as an A2A agent.";
             o.AgentVersion     = "0.1.0";
             o.Upstream         = new A2aUpstream { BaseUrl = new Uri(upstreamUrl) };
         });
 
         var app = builder.Build();
-        app.MapA2aBridge(rpcPath: "/a2a");
+        app.MapA2aIngress(rpcPath: "/a2a");
         return app;
     }
 
@@ -132,11 +132,11 @@ public static class HostBuilders
             });
         });
 
-        builder.Services.AddGrpcBridge(o =>
+        builder.Services.AddGrpcIngress(o =>
         {
             o.Upstreams =
             [
-                new LabAcacia.GrpcBridge.NwpUpstream
+                new LabAcacia.GrpcIngress.NwpUpstream
                 {
                     Name    = upstreamName,
                     BaseUrl = new Uri(upstreamUrl),
@@ -145,7 +145,7 @@ public static class HostBuilders
         });
 
         var app = builder.Build();
-        app.MapGrpcBridge();
+        app.MapGrpcIngress();
         return app;
     }
 }

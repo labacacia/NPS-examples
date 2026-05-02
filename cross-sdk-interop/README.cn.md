@@ -110,12 +110,21 @@ NWP"这种说法的最短证明。协议本身就是契约；SDK 只是方便层
 ## 运行
 
 ```bash
+# wire format 互操作（仅标准库客户端，无需 SDK）
 bash demos/cross-sdk-interop/run.sh
+
+# SDK 行为一致性：AssuranceLevel.fromWire("") == ANONYMOUS 跨 SDK 校验
+bash demos/cross-sdk-interop/assurance-level-parity.sh
 ```
 
-服务端 + dotnet 客户端需要 .NET 10 SDK。可选（每个客户端独立检测）：
+`run.sh` 服务端 + dotnet 客户端需要 .NET 10 SDK。可选（每个客户端独立检测）：
 `python3` ≥ 3.9、`node` ≥ 18、`go` ≥ 1.22。**任何客户端都不需要**
 `pip install` / `npm install` / `go get`。
+
+`assurance-level-parity.sh` 直接导入各语言已安装的 NPS SDK，断言
+`AssuranceLevel.fromWire("") === ANONYMOUS`。空字符串在 Python / TypeScript /
+Java 里与 `fromWire(null)` 的行为对齐是 alpha.5 的修复
+（NPS-RFC-0003 §5.1.1）。缺失的运行时自动跳过。
 
 ---
 
@@ -137,6 +146,7 @@ bash demos/cross-sdk-interop/run.sh
 ```
 demos/cross-sdk-interop/
 ├── run.sh                                 # 启动 → 分发 → diff
+├── assurance-level-parity.sh             # SDK fromWire("") == ANONYMOUS 校验
 ├── server/
 │   ├── NPS.Demo.InteropServer.csproj
 │   └── Program.cs                         # 3 行商品 Memory Node
