@@ -59,7 +59,7 @@ bash demos/cross-sdk-interop/run.sh
 
 三个理由，按重要性排序：
 
-1. **可发现性。** 有人搜 "NPS MCP bridge example"、"NWP graph walk demo"
+1. **可发现性。** 有人搜 "NPS MCP ingress example"、"NWP graph walk demo"
    能直接找到一个自描述的仓库，而不是一个藏在主仓库三级目录之下的子目录。
 2. **更小的 clone 面积。** 主仓库包含完整规范、6 个 SDK、3 个桥、6 份 NIP
    CA 实现。你不需要 clone 这些只为了读 150 行 Program.cs。

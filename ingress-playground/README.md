@@ -17,7 +17,7 @@ same business code; only the outward wire format differs. One in-process
          ┌───────────────────────────┼────────────────────────────┐
          │                           │                            │
 ┌────────┴────────┐        ┌─────────┴────────┐         ┌─────────┴────────┐
-│ MCP bridge      │        │ A2A bridge       │         │ gRPC bridge      │
+│ MCP ingress     │        │ A2A ingress      │         │ gRPC ingress     │
 │   :17482/mcp    │        │   :17483/a2a     │         │   :17484 h2c     │
 │ tools/call      │        │ tasks/send       │         │ Invoke RPC       │
 └─────────────────┘        └──────────────────┘         └──────────────────┘
@@ -151,7 +151,7 @@ A2A wraps the CapsFrame as a typed `data` part inside `artifacts[]`. Same
 }
 ```
 
-The gRPC bridge does byte-level passthrough: `InvokeResponse.body_json`
+The gRPC ingress does byte-level passthrough: `InvokeResponse.body_json`
 carries the serialized CapsFrame unchanged.
 
 **Interpretation.** The three `via` values (`MCP` / `A2A` / `gRPC`) are
@@ -202,7 +202,7 @@ namespaces differ, so the two sides interoperate transparently.
 
 ## Demo-only configuration
 
-- **Plaintext h2c for gRPC.** The gRPC bridge listens on `http://` so the
+- **Plaintext h2c for gRPC.** The gRPC ingress listens on `http://` so the
   demo runs without a certificate. The
   `System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport` AppContext
   switch is set *only* in this demo's entry point. Production gRPC MUST

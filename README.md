@@ -23,7 +23,7 @@ out — run it.
 | # | Demo | One-line description | What protocol piece it exercises |
 |---|------|----------------------|----------------------------------|
 | 1 | [**nwp-graph-walk**](./nwp-graph-walk/README.md) | Complex Node traversing typed refs to other NWP nodes, with depth cap + cycle detection | NPS-2 (NWP) §11 `graph.refs`, `X-NWP-Depth`, `X-NWP-Trace` |
-| 2 | [**ingress-playground**](./ingress-playground/README.md) | One NWP Action Node exposed simultaneously through MCP, A2A, and gRPC bridges | `LabAcacia.McpIngress` + `LabAcacia.A2aIngress` + `LabAcacia.GrpcIngress` |
+| 2 | [**ingress-playground**](./ingress-playground/README.md) | One NWP Action Node exposed simultaneously through MCP, A2A, and gRPC ingresses | `LabAcacia.McpIngress` + `LabAcacia.A2aIngress` + `LabAcacia.GrpcIngress` |
 | 3 | [**cross-sdk-interop**](./cross-sdk-interop/README.md) | Same .NET NWP Memory Node reached from dotnet / python / nodejs / go using only stdlib HTTP + JSON | NWP JSON-Overlay at `/query`, CapsFrame byte-equality across clients |
 
 Each demo's README has four sections:
@@ -60,7 +60,7 @@ Requires .NET 10 SDK. Demo 3 additionally detects `python3`, `node`, and
 
 Three reasons, in order of importance:
 
-1. **Discoverability.** Someone searching "NPS MCP bridge example" or
+1. **Discoverability.** Someone searching "NPS MCP ingress example" or
    "NWP graph walk demo" finds a self-describing repo, not a subdirectory
    three levels deep in a monorepo.
 2. **Smaller clone surface.** The main monorepo contains the full spec,
