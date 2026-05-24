@@ -1,0 +1,23 @@
+[Unit]
+Description=Joplin NWP Note Node
+After=network.target
+Documentation=https://github.com/innolotus/NPS-examples
+
+[Service]
+Type=simple
+User=joplin-node
+Group=joplin-node
+EnvironmentFile=-/etc/joplin-note-node/env
+ExecStart=/usr/bin/joplin-note-node start
+Restart=on-failure
+RestartSec=5
+
+# Hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+
+[Install]
+WantedBy=multi-user.target

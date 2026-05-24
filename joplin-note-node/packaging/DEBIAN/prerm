@@ -1,0 +1,12 @@
+#!/bin/sh
+set -e
+
+if systemctl is-active --quiet joplin-note-node.service 2>/dev/null; then
+    systemctl stop joplin-note-node.service
+fi
+
+if systemctl is-enabled --quiet joplin-note-node.service 2>/dev/null; then
+    systemctl disable joplin-note-node.service
+fi
+
+systemctl daemon-reload || true

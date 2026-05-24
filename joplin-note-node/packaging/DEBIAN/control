@@ -1,0 +1,11 @@
+Package: joplin-note-node
+Version: 2.0.0
+Section: utils
+Priority: optional
+Architecture: amd64
+Depends: libicu-dev | libicu74 | libicu72 | libicu70 | libicu66
+Maintainer: INNO LOTUS PTY LTD <packages@innolotus.com>
+Description: Joplin NWP Note Node
+ An NPS/NWP node that exposes a Joplin instance (via Web Clipper or
+ Joplin Server) as a ComplexNode for AI agents. Supports querying
+ notes, full-text search, and write-back actions (create/update/delete).

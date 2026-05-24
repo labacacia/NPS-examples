@@ -1,0 +1,24 @@
+#!/bin/sh
+set -e
+
+# Create system user if it doesn't exist
+if ! id -u joplin-node >/dev/null 2>&1; then
+    adduser --system --group --no-create-home --shell /usr/sbin/nologin joplin-node
+fi
+
+# Install example env file if no config exists yet
+if [ ! -f /etc/joplin-note-node/env ]; then
+    mkdir -p /etc/joplin-note-node
+    cp /etc/joplin-note-node/env.example /etc/joplin-note-node/env
+    chmod 640 /etc/joplin-note-node/env
+    chown root:joplin-node /etc/joplin-note-node/env
+fi
+
+systemctl daemon-reload
+systemctl enable joplin-note-node.service
+
+echo ""
+echo "joplin-note-node installed."
+echo "Edit /etc/joplin-note-node/env, then run:"
+echo "  sudo systemctl start joplin-note-node"
+echo ""
