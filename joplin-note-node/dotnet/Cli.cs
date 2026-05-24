@@ -6,7 +6,7 @@ using System.CommandLine.Invocation;
 using System.Net.Http.Json;
 using System.Text.Json;
 using LabAcacia.McpIngress;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Configuration;
 using NPS.Demo.JoplinNoteNode.Client;
 using NPS.Demo.JoplinNoteNode.Nodes;
 using NPS.NWP.ActionNode;
@@ -18,76 +18,78 @@ namespace NPS.Demo.JoplinNoteNode;
 
 public static class Cli
 {
-    // ── Shared options ────────────────────────────────────────────────────────
+    // ── Shared options (all nullable — defaults resolved in ReadConfig) ─────────
+    // Priority: CLI arg > appsettings.json > environment variable > hardcoded
 
-    private static readonly Option<string> BackendOpt = new(
+    private static readonly Option<string?> BackendOpt = new(
         "--backend",
-        () => Env("JOPLIN_BACKEND") ?? "webclipper",
-        "Backend type: webclipper | server  [env: JOPLIN_BACKEND]");
+        "Backend type: webclipper | server  [cfg: Joplin:Backend | env: JOPLIN_BACKEND]");
 
     // WebClipper options
     private static readonly Option<string?> TokenOpt = new(
         "--token",
-        () => Env("JOPLIN_TOKEN"),
-        "Joplin Web Clipper API token  [env: JOPLIN_TOKEN]");
-    private static readonly Option<string> ClipperUrlOpt = new(
+        "Joplin Web Clipper API token  [cfg: Joplin:WebClipper:Token | env: JOPLIN_TOKEN]");
+    private static readonly Option<string?> ClipperUrlOpt = new(
         "--clipper-url",
-        () => Env("JOPLIN_CLIPPER_URL") ?? "http://localhost:41184",
-        "Web Clipper server URL  [env: JOPLIN_CLIPPER_URL]");
+        "Web Clipper server URL  [cfg: Joplin:WebClipper:BaseUrl | env: JOPLIN_CLIPPER_URL]");
 
     // Joplin Server options
-    private static readonly Option<string> ServerUrlOpt = new(
+    private static readonly Option<string?> ServerUrlOpt = new(
         "--server-url",
-        () => Env("JOPLIN_SERVER_URL") ?? "http://localhost:22300",
-        "Joplin Server base URL  [env: JOPLIN_SERVER_URL]");
+        "Joplin Server base URL  [cfg: Joplin:Server:BaseUrl | env: JOPLIN_SERVER_URL]");
     private static readonly Option<string?> EmailOpt = new(
         "--email",
-        () => Env("JOPLIN_EMAIL"),
-        "Joplin Server account email  [env: JOPLIN_EMAIL]");
+        "Joplin Server account email  [cfg: Joplin:Server:Email | env: JOPLIN_EMAIL]");
     private static readonly Option<string?> PasswordOpt = new(
         "--password",
-        () => Env("JOPLIN_PASSWORD"),
-        "Joplin Server account password  [env: JOPLIN_PASSWORD]");
+        "Joplin Server account password  [cfg: Joplin:Server:Password | env: JOPLIN_PASSWORD]");
 
     // Node options
-    private static readonly Option<int> PortOpt = new(
+    private static readonly Option<int?> PortOpt = new(
         "--port",
-        () => int.TryParse(Env("JOPLIN_PORT"), out int p) ? p : 17480,
-        "Port this NWP node listens on  [env: JOPLIN_PORT]");
+        "Port this NWP node listens on  [cfg: Joplin:Port | env: JOPLIN_PORT]");
     private static readonly Option<string?> NodeUrlOpt = new(
         "--node-url",
-        () => Env("JOPLIN_NODE_URL"),
-        "Public base URL of this node, used in graph.refs (defaults to http://localhost:<port>)  [env: JOPLIN_NODE_URL]");
-    private static readonly Option<bool> McpOpt = new(
+        "Public base URL of this node  [cfg: Joplin:NodeUrl | env: JOPLIN_NODE_URL]");
+    private static readonly Option<bool?> McpOpt = new(
         "--mcp",
-        () => !string.Equals(Env("JOPLIN_MCP_DISABLED"), "true", StringComparison.OrdinalIgnoreCase),
-        "Enable MCP JSON-RPC endpoint at /mcp (default: on)  [env: JOPLIN_MCP_DISABLED=true to disable]");
+        "Enable MCP JSON-RPC endpoint at /mcp  [cfg: Joplin:Mcp | env: JOPLIN_MCP_DISABLED=true to disable]");
 
     private static string? Env(string name) => Environment.GetEnvironmentVariable(name);
+    private static int?    TryInt(string? s)  => int.TryParse(s, out var v)  ? v : null;
+    private static bool?   TryBool(string? s) => bool.TryParse(s, out var v) ? v : null;
 
     // ── Entry point ───────────────────────────────────────────────────────────
 
     public static Task<int> RunAsync(string[] args)
     {
+        var appCfg = BuildConfig();
+
         var root = new RootCommand("Joplin NWP Note Node — NPS example")
         {
-            BuildStartCommand(),
-            BuildPingCommand(),
+            BuildStartCommand(appCfg),
+            BuildPingCommand(appCfg),
         };
 
         // No subcommand → default to "start"
         root.SetHandler(async ctx =>
         {
-            ctx.ExitCode = await BuildStartCommand().InvokeAsync(ctx.ParseResult.Tokens
+            ctx.ExitCode = await BuildStartCommand(appCfg).InvokeAsync(ctx.ParseResult.Tokens
                 .Select(t => t.Value).ToArray());
         });
 
         return root.InvokeAsync(args);
     }
 
+    private static IConfiguration BuildConfig() =>
+        new ConfigurationBuilder()
+            .SetBasePath(AppContext.BaseDirectory)
+            .AddJsonFile("appsettings.json", optional: true)
+            .Build();
+
     // ── start ─────────────────────────────────────────────────────────────────
 
-    private static Command BuildStartCommand()
+    private static Command BuildStartCommand(IConfiguration appCfg)
     {
         var cmd = new Command("start", "Start the Joplin NWP node (default command)")
         {
@@ -98,7 +100,7 @@ public static class Cli
 
         cmd.SetHandler(async ctx =>
         {
-            var cfg = ReadConfig(ctx);
+            var cfg = ReadConfig(ctx, appCfg);
             PrintBanner(cfg);
             await RunNodeAsync(cfg, ctx.GetCancellationToken());
         });
@@ -108,7 +110,7 @@ public static class Cli
 
     // ── ping ──────────────────────────────────────────────────────────────────
 
-    private static Command BuildPingCommand()
+    private static Command BuildPingCommand(IConfiguration appCfg)
     {
         var cmd = new Command("ping", "Test connectivity to the configured Joplin backend")
         {
@@ -118,7 +120,7 @@ public static class Cli
 
         cmd.SetHandler(async ctx =>
         {
-            var cfg = ReadConfig(ctx);
+            var cfg = ReadConfig(ctx, appCfg);
             ctx.ExitCode = await PingAsync(cfg, ctx.GetCancellationToken()) ? 0 : 1;
         });
 
@@ -138,23 +140,45 @@ public static class Cli
         string  NodeBaseUrl,
         bool    McpEnabled);
 
-    private static NodeConfig ReadConfig(InvocationContext ctx)
+    private static NodeConfig ReadConfig(InvocationContext ctx, IConfiguration appCfg)
     {
-        var backend    = ctx.ParseResult.GetValueForOption(BackendOpt) ?? "webclipper";
-        var port       = ctx.ParseResult.GetValueForOption(PortOpt);
-        var nodeUrl    = ctx.ParseResult.GetValueForOption(NodeUrlOpt)
-                         ?? $"http://localhost:{port}";
+        // Priority: CLI arg > appsettings.json > environment variable > hardcoded default
+        string Str(Option<string?> opt, string cfgKey, string envVar, string fallback) =>
+            ctx.ParseResult.GetValueForOption(opt)
+            ?? appCfg[cfgKey]
+            ?? Env(envVar)
+            ?? fallback;
+
+        string? Opt(Option<string?> opt, string cfgKey, string envVar) =>
+            ctx.ParseResult.GetValueForOption(opt)
+            ?? appCfg[cfgKey]
+            ?? Env(envVar);
+
+        var port    = ctx.ParseResult.GetValueForOption(PortOpt)
+                      ?? TryInt(appCfg["Joplin:Port"])
+                      ?? TryInt(Env("JOPLIN_PORT"))
+                      ?? 17480;
+
+        var nodeUrl = ctx.ParseResult.GetValueForOption(NodeUrlOpt)
+                      ?? appCfg["Joplin:NodeUrl"]
+                      ?? Env("JOPLIN_NODE_URL")
+                      ?? $"http://localhost:{port}";
+
+        var mcp     = ctx.ParseResult.GetValueForOption(McpOpt)
+                      ?? TryBool(appCfg["Joplin:Mcp"])
+                      ?? (Env("JOPLIN_MCP_DISABLED") is "true" ? false : (bool?)null)
+                      ?? true;
 
         return new NodeConfig(
-            Backend:     backend,
-            ClipperUrl:  ctx.ParseResult.GetValueForOption(ClipperUrlOpt) ?? "http://localhost:41184",
-            Token:       ctx.ParseResult.GetValueForOption(TokenOpt),
-            ServerUrl:   ctx.ParseResult.GetValueForOption(ServerUrlOpt) ?? "http://localhost:22300",
-            Email:       ctx.ParseResult.GetValueForOption(EmailOpt),
-            Password:    ctx.ParseResult.GetValueForOption(PasswordOpt),
+            Backend:     Str(BackendOpt,    "Joplin:Backend",           "JOPLIN_BACKEND",     "webclipper"),
+            ClipperUrl:  Str(ClipperUrlOpt, "Joplin:WebClipper:BaseUrl","JOPLIN_CLIPPER_URL", "http://localhost:41184"),
+            Token:       Opt(TokenOpt,      "Joplin:WebClipper:Token",  "JOPLIN_TOKEN"),
+            ServerUrl:   Str(ServerUrlOpt,  "Joplin:Server:BaseUrl",    "JOPLIN_SERVER_URL",  "http://localhost:22300"),
+            Email:       Opt(EmailOpt,      "Joplin:Server:Email",      "JOPLIN_EMAIL"),
+            Password:    Opt(PasswordOpt,   "Joplin:Server:Password",   "JOPLIN_PASSWORD"),
             Port:        port,
             NodeBaseUrl: nodeUrl,
-            McpEnabled:  ctx.ParseResult.GetValueForOption(McpOpt));
+            McpEnabled:  mcp);
     }
 
     // ── Web host ──────────────────────────────────────────────────────────────
