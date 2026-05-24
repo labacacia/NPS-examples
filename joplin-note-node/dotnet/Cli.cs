@@ -5,7 +5,7 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Net.Http.Json;
 using System.Text.Json;
-using LabAcacia.McpIngress;
+using LabAcacia.NPS.McpIngress;
 using Microsoft.Extensions.Configuration;
 using NPS.Demo.JoplinNoteNode.Client;
 using NPS.Demo.JoplinNoteNode.Nodes;

@@ -1,9 +1,9 @@
 // Copyright 2026 INNO LOTUS PTY LTD
 // SPDX-License-Identifier: Apache-2.0
 
-using LabAcacia.A2aIngress;
-using LabAcacia.GrpcIngress;
-using LabAcacia.McpIngress;
+using LabAcacia.NPS.A2aIngress;
+using LabAcacia.NPS.GrpcIngress;
+using LabAcacia.NPS.McpIngress;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
@@ -77,7 +77,7 @@ public static class HostBuilders
             o.ServerVersion = "0.1.0";
             o.Upstreams =
             [
-                new LabAcacia.McpIngress.NwpUpstream
+                new LabAcacia.NPS.McpIngress.NwpUpstream
                 {
                     Name    = upstreamName,
                     BaseUrl = new Uri(upstreamUrl),
@@ -136,7 +136,7 @@ public static class HostBuilders
         {
             o.Upstreams =
             [
-                new LabAcacia.GrpcIngress.NwpUpstream
+                new LabAcacia.NPS.GrpcIngress.NwpUpstream
                 {
                     Name    = upstreamName,
                     BaseUrl = new Uri(upstreamUrl),
