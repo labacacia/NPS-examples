@@ -12,12 +12,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\NPS-sdk-dotnet\src\NPS.NWP\NPS.NWP.csproj" />
-    <ProjectReference Include="..\..\..\NPS-Dev\compat\mcp-ingress\src\LabAcacia.McpIngress\LabAcacia.McpIngress.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+    <PackageReference Include="LabAcacia.NPS.NWP"    Version="1.0.0-alpha.7" />
+    <PackageReference Include="LabAcacia.McpIngress"  Version="1.0.0-alpha.6" />
+    <PackageReference Include="System.CommandLine"    Version="2.0.0-beta4.22272.1" />
   </ItemGroup>
 
 </Project>
