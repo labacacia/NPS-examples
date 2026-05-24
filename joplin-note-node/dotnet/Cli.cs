@@ -5,6 +5,7 @@ using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Net.Http.Json;
 using System.Text.Json;
+using LabAcacia.McpIngress;
 using Microsoft.Extensions.Options;
 using NPS.Demo.JoplinNoteNode.Client;
 using NPS.Demo.JoplinNoteNode.Nodes;
@@ -57,6 +58,10 @@ public static class Cli
         "--node-url",
         () => Env("JOPLIN_NODE_URL"),
         "Public base URL of this node, used in graph.refs (defaults to http://localhost:<port>)  [env: JOPLIN_NODE_URL]");
+    private static readonly Option<bool> McpOpt = new(
+        "--mcp",
+        () => !string.Equals(Env("JOPLIN_MCP_DISABLED"), "true", StringComparison.OrdinalIgnoreCase),
+        "Enable MCP JSON-RPC endpoint at /mcp (default: on)  [env: JOPLIN_MCP_DISABLED=true to disable]");
 
     private static string? Env(string name) => Environment.GetEnvironmentVariable(name);
 
@@ -88,7 +93,7 @@ public static class Cli
         {
             BackendOpt, TokenOpt, ClipperUrlOpt,
             ServerUrlOpt, EmailOpt, PasswordOpt,
-            PortOpt, NodeUrlOpt,
+            PortOpt, NodeUrlOpt, McpOpt,
         };
 
         cmd.SetHandler(async ctx =>
@@ -130,7 +135,8 @@ public static class Cli
         string? Email,
         string? Password,
         int     Port,
-        string  NodeBaseUrl);
+        string  NodeBaseUrl,
+        bool    McpEnabled);
 
     private static NodeConfig ReadConfig(InvocationContext ctx)
     {
@@ -147,7 +153,8 @@ public static class Cli
             Email:       ctx.ParseResult.GetValueForOption(EmailOpt),
             Password:    ctx.ParseResult.GetValueForOption(PasswordOpt),
             Port:        port,
-            NodeBaseUrl: nodeUrl);
+            NodeBaseUrl: nodeUrl,
+            McpEnabled:  ctx.ParseResult.GetValueForOption(McpOpt));
     }
 
     // ── Web host ──────────────────────────────────────────────────────────────
@@ -168,17 +175,36 @@ public static class Cli
         builder.Services.AddMemoryNode<JoplinContentProvider>(configureContent);
         builder.Services.AddMemoryNode<JoplinNotebooksProvider>(configureNotebooks);
 
+        if (cfg.McpEnabled)
+        {
+            var self = $"http://localhost:{cfg.Port}";
+            builder.Services.AddMcpIngress(o =>
+            {
+                o.ServerName    = "joplin-note-node";
+                o.ServerVersion = "2.0.0";
+                o.Upstreams     =
+                [
+                    new NwpUpstream { Name = "notes",     BaseUrl = new Uri($"{self}/notes")     },
+                    new NwpUpstream { Name = "content",   BaseUrl = new Uri($"{self}/content")   },
+                    new NwpUpstream { Name = "notebooks", BaseUrl = new Uri($"{self}/notebooks") },
+                ];
+            });
+        }
+
         var app = builder.Build();
         app.UseComplexNode<JoplinComplexProvider>(configureComplex);
         app.UseMemoryNode<JoplinContentProvider>(configureContent);
         app.UseMemoryNode<JoplinNotebooksProvider>(configureNotebooks);
+
+        if (cfg.McpEnabled)
+            app.MapMcpIngress("/mcp");
 
         app.MapGet("/", () => Results.Ok(new
         {
             node      = "joplin-note-node",
             version   = "2.0.0",
             backend   = cfg.Backend,
-            endpoints = new[] { "/notes", "/content", "/notebooks" },
+            endpoints = new[] { "/notes", "/content", "/notebooks", "/mcp" },
         }));
 
         await app.RunAsync(ct);
@@ -365,7 +391,8 @@ public static class Cli
             Console.WriteLine($"  Clipper  : {cfg.ClipperUrl}  token={Mask(cfg.Token)}");
         Console.WriteLine($"  Listening: http://0.0.0.0:{cfg.Port}");
         Console.WriteLine($"  Graph URL: {cfg.NodeBaseUrl}");
-        Console.WriteLine($"  Endpoints: /notes  /content  /notebooks");
+        Console.WriteLine($"  NWP      : /notes  /content  /notebooks");
+        Console.WriteLine($"  MCP      : {(cfg.McpEnabled ? $"http://0.0.0.0:{cfg.Port}/mcp  (POST JSON-RPC)" : "disabled")}");
         Console.WriteLine();
     }
 

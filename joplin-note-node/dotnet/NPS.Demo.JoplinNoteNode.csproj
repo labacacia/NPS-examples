@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\NPS-sdk-dotnet\src\NPS.NWP\NPS.NWP.csproj" />
+    <ProjectReference Include="..\..\..\NPS-Dev\compat\mcp-ingress\src\LabAcacia.McpIngress\LabAcacia.McpIngress.csproj" />
   </ItemGroup>
 
   <ItemGroup>
