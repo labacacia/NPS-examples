@@ -107,7 +107,7 @@ module assurance_parity
 
 go 1.22
 
-require github.com/labacacia/nps-sdk-go v1.0.0-alpha.5
+require github.com/labacacia/nps-sdk-go v1.0.0-alpha.11
 GOMOD
   OUT=$(cd "$_GO_DIR" && go run . 2>/dev/null || echo "error")
   rm -rf "$_GO_DIR"
@@ -136,7 +136,7 @@ JAVAEOF
   <dependencies>
     <dependency>
       <groupId>com.labacacia</groupId><artifactId>nps-sdk</artifactId>
-      <version>1.0.0-alpha.5</version>
+      <version>1.0.0-alpha.11</version>
     </dependency>
   </dependencies>
 </project>
