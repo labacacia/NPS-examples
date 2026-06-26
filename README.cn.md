@@ -2,6 +2,11 @@
 
 # NPS Examples
 
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue)](./LICENSE)
+[![Suite](https://img.shields.io/badge/suite-v1.0.0--alpha.13-orange.svg)](https://gitee.com/labacacia/NPS-Release/releases/tag/v1.0.0-alpha.13)
+[![Next](https://img.shields.io/badge/next-v1.0.0--alpha.14--candidate-yellow.svg)](https://gitee.com/labacacia/NPS-Release)
+[![NWP](https://img.shields.io/badge/NWP-v0.14-4af0b0.svg)]()
+
 [Neural Protocol Suite (NPS)](https://github.com/labacacia/nps) 的精选可运行
 演示集。每个演示都是针对某一个协议机制的端到端自包含场景：你可以读源码、
 读 README——并且在有 NPS 主仓库 checkout 的情况下把它跑起来。
