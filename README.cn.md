@@ -3,8 +3,7 @@
 # NPS Examples
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue)](./LICENSE)
-[![Suite](https://img.shields.io/badge/suite-v1.0.0--alpha.13-orange.svg)](https://gitee.com/labacacia/NPS-Release/releases/tag/v1.0.0-alpha.13)
-[![Next](https://img.shields.io/badge/next-v1.0.0--alpha.14--candidate-yellow.svg)](https://gitee.com/labacacia/NPS-Release)
+[![Suite](https://img.shields.io/badge/suite-v1.0.0--alpha.14-orange.svg)](https://gitee.com/labacacia/NPS-Release/releases/tag/v1.0.0-alpha.14)
 [![NWP](https://img.shields.io/badge/NWP-v0.14-4af0b0.svg)]()
 
 [Neural Protocol Suite (NPS)](https://github.com/labacacia/nps) 的精选可运行
